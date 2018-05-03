@@ -1,0 +1,39 @@
+---
+
+- name: Remove old versions of Docker
+  apt:
+    name: "{{ item }}"
+    state: absent
+  become: yes
+  with_items:
+    - docker
+    - docker-engine
+    - docker.io
+
+- name: Add Docker official GPG key
+  apt_key:
+    id: 0EBFCD88
+    state: present
+    url: https://download.docker.com/linux/ubuntu/gpg
+  become: yes
+
+- name: Add Docker stable repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Install Docker Community Edition
+  apt:
+    name: docker-ce
+    state: present
+  become: yes
+
+- name: Add vagrant user to docker group
+  user:
+    groups:
+      - docker
+    name: vagrant
+    state: present
+  become: yes
